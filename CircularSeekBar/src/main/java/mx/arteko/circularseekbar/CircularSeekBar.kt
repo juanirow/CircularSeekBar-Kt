@@ -1,5 +1,6 @@
 package mx.arteko.circularseekbar
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.graphics.Paint.Align
@@ -26,8 +27,8 @@ class CircularSeekBar(context: Context,
     View(context, attrs, defStyleAttr) {
 
     // settable by the client through attributes and programmatically
-    private val mOnCircularSeekBarChangeListener: OnCircularSeekBarChangeListener? = null
-    private val mOnCenterClickedListener: OnCenterClickedListener? = null
+    private var mOnCircularSeekBarChangeListener: OnCircularSeekBarChangeListener? = null
+    private var mOnCenterClickedListener: OnCenterClickedListener? = null
     private var mEnabled = true
     private var mShowIndicator = true
     private var mMinValue = 0f
@@ -61,7 +62,7 @@ class CircularSeekBar(context: Context,
     private var mRingPaint: Paint
     private var mInnerCirclePaint: Paint
     private var mProgressTextPaint: Paint
-    private val mProgressTextFormat: NumberFormat = DecimalFormat("###,###,###,##0.0")
+    private var mProgressTextFormat: NumberFormat = DecimalFormat("###,###,###,##0.0")
 
     // private
     private val mViewBox = RectF()
@@ -145,6 +146,7 @@ class CircularSeekBar(context: Context,
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (mEnabled) {
             if (mGestureDetector?.onTouchEvent(event) == true) {
@@ -181,6 +183,192 @@ class CircularSeekBar(context: Context,
         else {
             return super.onTouchEvent(event)
         }
+    }
+
+    /*********************************************************
+    ******************* Public Methods ***********************
+    *********************************************************/
+
+    fun setOnCircularSeekBarChangeListener(listener: OnCircularSeekBarChangeListener?) {
+        mOnCircularSeekBarChangeListener = listener
+    }
+
+    fun setOnCenterClickedListener(listener: OnCenterClickedListener?)  {
+        mOnCenterClickedListener = listener
+    }
+
+    fun setIndicator(enable: Boolean) {
+        mShowIndicator = enable
+        invalidate()
+    }
+
+    fun isIndicatorEnabled(): Boolean = mShowIndicator
+
+    fun setMinValue(min: Float) {
+        mMinValue = min
+        setProgress(min(mMinValue, mProgress))
+    }
+
+    fun getMin(): Float = mMinValue
+
+    fun setMaxValue(max: Float) {
+        mMaxValue = max
+        setProgress(max(mMaxValue, mProgress))
+    }
+
+    fun getMax(): Float = mMaxValue
+
+
+    fun setSpeedMultiplier(speedMultiplied: Float) {
+        mSpeedMultiplier = speedMultiplied
+    }
+
+    fun getSpeedMultiplied() = mSpeedMultiplier
+
+    fun setProgress(progress: Float) {
+        mProgress = progress
+        mOnCircularSeekBarChangeListener?.onProgressChanged(this, mProgress, false)
+        invalidate()
+    }
+
+    fun getProgress() = mProgress
+
+    fun setViewEnabled(enabled: Boolean) {
+        mEnabled = enabled
+        invalidate()
+    }
+
+    fun isViewEnabled(): Boolean = mEnabled
+
+    fun setProgressText(enabled: Boolean) {
+        mShowText = enabled
+        invalidate()
+    }
+
+    fun isProgressTextEnabled(): Boolean {
+        return mShowText
+    }
+
+    /**
+     * Set the thickness of the outer ring (touchable area), relative to the size of the whole view
+     * @param factor
+     */
+    fun setRingWidthFactor(@FloatRange(from = 0.0, to = 1.0) factor: Float) {
+        mRingWidthFactor = factor
+        invalidate()
+    }
+
+    fun getRingWidthFactor(): Float {
+        return mRingWidthFactor
+    }
+
+    fun setProgressText(text: String?) {
+        mProgressText = text
+        invalidate()
+    }
+
+    fun getProgressText(): String? {
+        return mProgressText
+    }
+
+    /**
+     * Enable/disable inner circle display
+     * @param enable
+     */
+    fun setInnerCircle(enable: Boolean) {
+        mShowInnerCircle = enable
+        invalidate()
+    }
+
+    fun isInnerCircleEnabled(): Boolean {
+        return mShowInnerCircle
+    }
+
+    /**
+     * Set color for the outer ring (touchable area)
+     * @param color
+     */
+    fun setRingColor(@ColorInt color: Int) {
+        mRingColor = color
+        mRingPaint.color = mRingColor
+        invalidate()
+    }
+
+    @ColorInt
+    fun getRingColor(): Int {
+        return mRingColor
+    }
+
+    fun setInnerCircleColor(@ColorInt color: Int) {
+        mInnerCircleColor = color
+        mInnerCirclePaint.color = mInnerCircleColor
+        invalidate()
+    }
+
+    @ColorInt
+    fun getInnerCircleColor(): Int {
+        return mInnerCircleColor
+    }
+
+    fun setProgressTextColor(@ColorInt color: Int) {
+        mProgressTextColor = color
+        mProgressTextPaint.color = mProgressTextColor
+        invalidate()
+    }
+
+    @ColorInt
+    fun getProgressTextColor(): Int {
+        return mProgressTextColor
+    }
+
+    fun setProgressTextSize(@FloatRange(from = 0.0) pixels: Float) {
+        mProgressTextSize = pixels
+        mProgressTextPaint.textSize = mProgressTextSize
+        invalidate()
+    }
+
+    fun getProgressTextSize(): Float {
+        return mProgressTextSize
+    }
+
+    fun setRingPaint(paint: Paint) {
+        mRingPaint = paint
+        invalidate()
+    }
+
+    /**
+     * Set the Paint used to draw the inner circle
+     * @param paint
+     */
+    fun setInnerCirclePaint(paint: Paint) {
+        mInnerCirclePaint = paint
+        invalidate()
+    }
+
+    /**
+     * Set the Paint used to draw the progress text or fixed custom text
+     * @param paint
+     */
+    fun setProgressTextPaint(paint: Paint) {
+        mProgressTextPaint = paint
+        invalidate()
+    }
+
+    /**
+     * Set the format of the progress text. <br></br>
+     *
+     *  * "###,###,###,##0.0" will display: 1,234.5
+     *  * "###,###,###,##0.00" will display: 1,234.56
+     *
+     * @param format
+     */
+    fun setProgressTextFormat(format: NumberFormat) {
+        mProgressTextFormat = format
+        invalidate()
+    }
+
+    fun getProgressTextFormat(): NumberFormat? {
+        return mProgressTextFormat
     }
 
     /*********************************************************
@@ -264,6 +452,7 @@ class CircularSeekBar(context: Context,
 
     private fun getInnerCircleRadius() = getOuterCircleRadius() * (1 - mRingWidthFactor)
 
+
     private fun distanceToCenter(x: Float, y: Float): Float {
         val c = center()
         return sqrt(
@@ -316,7 +505,7 @@ class CircularSeekBar(context: Context,
             if (mOnCenterClickedListener != null
                 && distance <= r - r * mRingWidthFactor
             ) {
-                mOnCenterClickedListener.onCenterClicked(this@CircularSeekBar, mProgress)
+                mOnCenterClickedListener?.onCenterClicked(this@CircularSeekBar, mProgress)
             }
             return false
         }
