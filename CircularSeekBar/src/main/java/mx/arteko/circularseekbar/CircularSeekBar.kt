@@ -128,6 +128,25 @@ class CircularSeekBar(context: Context,
         mAngularVelocityTracker = AngularVelocityTracker(center.x, center.y)
     }
 
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        drawWholeCircle(canvas)
+        if (mShowIndicator && mTouching) {
+            drawProgressArc(canvas)
+        }
+        if (mShowInnerCircle) {
+            drawInnerCircle(canvas)
+        }
+        if (mShowText) {
+            if (mProgressText != null) {
+                drawCustomText(canvas)
+            }
+            else {
+                drawProgressText(canvas)
+            }
+        }
+    }
+
     /*********************************************************
     ******************* Draw Views ***********************
     *********************************************************/
