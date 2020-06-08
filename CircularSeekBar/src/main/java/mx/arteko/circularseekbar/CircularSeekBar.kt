@@ -146,6 +146,15 @@ class CircularSeekBar(context: Context,
             mRingPaint)
     }
 
+    private fun drawInnerCircle(canvas: Canvas) {
+        canvas.drawCircle(
+            width / 2f,
+            height / 2f,
+            getInnerCircleRadius(),
+            mInnerCirclePaint
+        )
+    }
+
     /*********************************************************
     ******************* Private Methods ***********************
     *********************************************************/
@@ -155,6 +164,8 @@ class CircularSeekBar(context: Context,
     private fun center() = PointF(width / 2f, height / 2f)
 
     private fun getOuterCircleRadius(): Float = diameter() / 2f
+
+    private fun getInnerCircleRadius() = getOuterCircleRadius() * (1 - mRingWidthFactor)
 
     private fun distanceToCenter(x: Float, y: Float): Float {
         val c = center()
