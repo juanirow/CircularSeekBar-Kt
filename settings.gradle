@@ -1,2 +1,3 @@
+include ':CircularSeekBar'
 include ':app'
 rootProject.name = "CircularSeekBarExample"
