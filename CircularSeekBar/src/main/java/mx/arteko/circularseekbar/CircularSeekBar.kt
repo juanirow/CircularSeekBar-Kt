@@ -1,11 +1,8 @@
 package mx.arteko.circularseekbar
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.graphics.Paint.Align
-import android.graphics.PointF
-import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
@@ -121,7 +118,6 @@ class CircularSeekBar(context: Context,
         mProgressTextPaint.textAlign = Align.CENTER
         mProgressTextPaint.color = mProgressTextColor
         mProgressTextPaint.textSize = mProgressTextSize
-        //TODO initi Gesture Listener
         mGestureDetector = GestureDetector(getContext(), GestureListener())
     }
 
@@ -130,6 +126,15 @@ class CircularSeekBar(context: Context,
         initViewBox()
         val center = center()
         mAngularVelocityTracker = AngularVelocityTracker(center.x, center.y)
+    }
+
+    /*********************************************************
+    ******************* Draw Views ***********************
+    *********************************************************/
+
+    private fun drawWholeCircle(canvas: Canvas) {
+        mRingPaint.alpha = mDimAlpha
+        canvas.drawCircle(width / 2f, height / 2f, getOuterCircleRadius(), mRingPaint)
     }
     
     /*********************************************************
