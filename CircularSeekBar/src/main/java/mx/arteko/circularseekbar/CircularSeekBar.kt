@@ -155,6 +155,23 @@ class CircularSeekBar(context: Context,
         )
     }
 
+    private fun drawCustomText(canvas: Canvas) {
+        canvas.drawText(mProgressText ?: "",
+        width / 2f,
+        height / 2f + mProgressTextPaint.descent(),
+        mProgressTextPaint)
+    }
+
+    private fun drawProgressText(canvas: Canvas) {
+        mAngularVelocityTracker?.let {
+            canvas.drawText(mProgressTextFormat.format(mProgress),
+                width / 2f,
+                height / 2f + mProgressTextPaint.descent(),
+                mProgressTextPaint
+            )
+        }
+    }
+
     /*********************************************************
     ******************* Private Methods ***********************
     *********************************************************/
