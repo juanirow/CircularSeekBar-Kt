@@ -13,9 +13,7 @@ import androidx.annotation.FloatRange
 import mx.arteko.circularseekbar.Utils.convertDpToPixel
 import java.text.DecimalFormat
 import java.text.NumberFormat
-import kotlin.math.min
-import kotlin.math.pow
-import kotlin.math.sqrt
+import kotlin.math.*
 
 
 /**
@@ -69,10 +67,10 @@ class CircularSeekBar(context: Context,
     private val mViewBox = RectF()
     private val mDimAlpha = 80
     private var mGestureDetector: GestureDetector? = null
-    private val mTouching = false
+    private var mTouching = false
 
     @FloatRange(from = 0.0, to = 360.0)
-    private val mTouchAngle = 0f
+    private var mTouchAngle = 0f
     private var mAngularVelocityTracker: AngularVelocityTracker? = null
 
     init {
@@ -145,6 +143,69 @@ class CircularSeekBar(context: Context,
                 drawProgressText(canvas)
             }
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (mEnabled) {
+            if (mGestureDetector?.onTouchEvent(event) == true) {
+                return true
+            }
+
+            val distance = distanceToCenter(event.x, event.y)
+            val outerCircleRadius = getOuterCircleRadius()
+            val innerCircleRadius = getInnerCircleRadius()
+
+            if (distance >= innerCircleRadius && distance < outerCircleRadius) {
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        mTouching = true
+                        trackTouchStart(event)
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        mTouching = true
+                        trackTouchMove(event)
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        mTouching = false
+                        trackTouchStop()
+                    }
+                }
+            }
+            else {
+                mTouching = false
+                mAngularVelocityTracker?.clear()
+            }
+            invalidate()
+            return true
+        }
+        else {
+            return super.onTouchEvent(event)
+        }
+    }
+
+    /*********************************************************
+    ******************* Touch Events ***********************
+    *********************************************************/
+
+    private fun trackTouchStart(event: MotionEvent) {
+        mAngularVelocityTracker?.let {
+            it.clear()
+            updateProgress(event.x, event.y, it.getAngularVelocity())
+        }
+        mOnCircularSeekBarChangeListener?.onStartTrackingTouch(this)
+    }
+
+    private fun trackTouchMove(event: MotionEvent) {
+        mAngularVelocityTracker?.let {
+            it.addMovement(event)
+            updateProgress(event.x, event.y, it.getAngularVelocity())
+        }
+        mOnCircularSeekBarChangeListener?.onProgressChanged(this, mProgress, true)
+    }
+
+    private fun trackTouchStop() {
+        mAngularVelocityTracker?.clear()
+        mOnCircularSeekBarChangeListener?.onStopTrackingTouch(this)
     }
 
     /*********************************************************
@@ -220,6 +281,25 @@ class CircularSeekBar(context: Context,
             halfWidth + halfDiameter,
             halfHeight + halfDiameter
         )
+    }
+
+    private fun updateProgress(x: Float, y: Float, speed: Float) {
+        mTouchAngle = getAngle(x, y)
+        var newVal = mProgress + mMaxValue / 100 * speed * mSpeedMultiplier
+        newVal = min(newVal, mMaxValue)
+        newVal = max(newVal, mMinValue)
+        mProgress = newVal
+    }
+
+    @FloatRange(from = 0.0, to = 360.0)
+    private fun getAngle(x: Float, y: Float): Float {
+        val c: PointF = center()
+        return (-Math.toDegrees(
+            atan2(
+                c.x - x.toDouble(),
+                c.y - y.toDouble()
+            )
+        )).toFloat()
     }
     
     /*********************************************************
