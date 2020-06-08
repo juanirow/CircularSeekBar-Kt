@@ -21,7 +21,7 @@ import kotlin.math.*
  * Created by Juancho - j.herandez@arteko.mx on 8/06/20.
  * Powered by Arteko
  */
-class CircularSeekBar(context: Context,
+class CircularSeekBar @JvmOverloads constructor(context: Context,
                       attrs: AttributeSet? = null,
                       defStyleAttr: Int = 0):
     View(context, attrs, defStyleAttr) {
@@ -146,7 +146,6 @@ class CircularSeekBar(context: Context,
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (mEnabled) {
             if (mGestureDetector?.onTouchEvent(event) == true) {
