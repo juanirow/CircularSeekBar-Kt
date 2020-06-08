@@ -136,7 +136,16 @@ class CircularSeekBar(context: Context,
         mRingPaint.alpha = mDimAlpha
         canvas.drawCircle(width / 2f, height / 2f, getOuterCircleRadius(), mRingPaint)
     }
-    
+
+    private fun drawProgressArc(canvas: Canvas) {
+        mRingPaint.alpha = 255
+        canvas.drawArc(mViewBox,
+            mTouchAngle - 105,
+            30f,
+            true,
+            mRingPaint)
+    }
+
     /*********************************************************
     ******************* Private Methods ***********************
     *********************************************************/
